@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import './login.css'
-import psglogo from '../assets/psglogo.png'
+import '../styles/login.css'
+import psglogo from '../assets/PSG.jpg'
 
 function Login({ onRegister }){
     const [username, setUsername] = useState('')
