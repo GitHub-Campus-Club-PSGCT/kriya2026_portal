@@ -1,76 +1,122 @@
-import { useState } from 'react'
-import './login.css'
-import psglogo from '../assets/psglogo.png'
+import React, { useState } from 'react'
+import '../styles/Login.css'
 
-function Login({ onRegister }){
-    const [username, setUsername] = useState('')
+function Login({ onLoginSuccess }) {
+    const [kriyaId, setKriyaId] = useState('')
+    const [email, setEmail] = useState('')
     const [otp, setOtp] = useState('')
-    const [stage, setStage] = useState('username') // 'username' or 'otp'
+    const [stage, setStage] = useState('input') // 'input' or 'otp'
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
-    const handleGetOtp = () => {
-        // in real app we'd call an API to send OTP
-        console.log('Sending OTP to user:', username)
-        setStage('otp')
-    }
-
-    const handleLogin = (e) => {
+    const handleSendOtp = async (e) => {
         e.preventDefault()
-        if (stage === 'otp') {
-            console.log('Username:', username)
-            console.log('OTP:', otp)
-            // perform final login
+        setError('')
+        setLoading(true)
+        try {
+            // Placeholder for Send OTP API
+            // In the future, this will call the API route provided by the user
+            console.log('Sending OTP to:', email, 'for Kriya ID:', kriyaId)
+
+            // Simulation of API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            setStage('otp')
+        } catch (err) {
+            setError('Failed to send OTP. Please try again.')
+        } finally {
+            setLoading(false)
         }
     }
 
-    return(
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault()
+        setError('')
+        setLoading(true)
+        try {
+            // Placeholder for Verify OTP API
+            // In the future, this will call the API route provided by the user
+            console.log('Verifying OTP:', otp, 'for:', email)
+
+            // Simulation of API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            if (onLoginSuccess) onLoginSuccess()
+        } catch (err) {
+            setError('Invalid OTP. Please try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
         <div className="login-container">
-                <form onSubmit={handleLogin}>
-                <div className='form-header'>
-                    <div><strong>Login..</strong></div>
-                    <div>Before ye conquer the seas of code, prove yer name and log in!!</div>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="username">Username:</label>
-                    <input 
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter your username"
-                        required
-                        disabled={stage === 'otp'}
-                    />
+            <div className="login-glass-card">
+                <div className="login-header">
+                    <h1>KRIYA<span>2026</span></h1>
+                    <p>{stage === 'input' ? 'Secure Entry to the Sea of Code' : 'Verify Your Identity'}</p>
                 </div>
 
-                {stage === 'username' ? (
-                    <button type="button" onClick={handleGetOtp} disabled={!username.trim()}>
-                        Get OTP
-                    </button>
-                ) : (
-                    <>
-                        <div className="form-group">
-                            <label htmlFor="otp">OTP:</label>
-                            <input
-                                type="text"
-                                id="otp"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                placeholder="Enter the OTP"
-                                required
-                            />
-                        </div>
-                        <button type="submit">Login</button>
-                    </>
-                )}
+                <form onSubmit={stage === 'input' ? handleSendOtp : handleVerifyOtp}>
+                    {stage === 'input' ? (
+                        <>
+                            <div className="form-group">
+                                <label>KRIYA ID</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter your Kriya ID"
+                                    value={kriyaId}
+                                    onChange={(e) => setKriyaId(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>EMAIL ADDRESS</label>
+                                <input
+                                    type="email"
+                                    placeholder="your@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            {kriyaId && email && (
+                                <button type="submit" className="login-btn" disabled={loading}>
+                                    {loading ? 'Sending...' : 'Send OTP'}
+                                </button>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <div className="form-group">
+                                <label>ONE-TIME PASSWORD</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter 6-digit OTP"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            <button type="submit" className="login-btn" disabled={loading}>
+                                {loading ? 'Verifying...' : 'Verify & Login'}
+                            </button>
+                            <button type="button" className="btn-secondary" onClick={() => setStage('input')}>
+                                Change Email/ID
+                            </button>
+                        </>
+                    )}
+                </form>
 
-                <div className="switch-link">
-                    Don't have an account?{' '}
-                    <button type="button" className="link-button" onClick={onRegister}>
-                        Register
-                    </button>
+                {error && <div className="error-message">{error}</div>}
+
+                <div className="login-footer">
+                    <p>Protected by Kriya Security Protocol</p>
                 </div>
-            </form>
+            </div>
         </div>
     )
 }
+
 export default Login
