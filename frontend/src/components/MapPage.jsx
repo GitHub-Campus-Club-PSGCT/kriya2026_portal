@@ -42,9 +42,9 @@ const MapPage = () => {
 
     // Island Graph Data - Easy to adjust size and position
     const islands = [
-        { id: 1, name: "Isla Muerta", img: island1, top: "60%", left: "0%", size: "250px" },
-        { id: 2, name: "Tortuga Island", img: island2, top: "60%", left: "63%", size: "300px" },
-        { id: 3, name: "Port Royal", img: island3, top: "2%", left: "60%", size: "250px" }
+        { id: 1, name: "Isla Muerta", img: island1, top: "60%", left: "0%", size: "340px" },
+        { id: 2, name: "Tortuga Island", img: island2, top: "60%", left: "69%", size: "390px" },
+        { id: 3, name: "Port Royal", img: island3, top: "2%", left: "55%", size: "340px" }
     ];
 
     // Clear old sync data if it exists

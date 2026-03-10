@@ -581,11 +581,10 @@
     position: fixed;
     pointer-events: none;
     z-index: 9999;
-    width: 40px;
-    /* Small size as requested */
-    height: 40px;
-    transform: translate(-10%, -90%) rotate(-15deg);
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    width: 80px;
+    height: 80px;
+    transform: translate(-20%, -80%) rotate(-15deg);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
     display: flex;
     align-items: center;
     justify-content: center;
