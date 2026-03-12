@@ -2,6 +2,7 @@ import "./Anchorage.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useGame } from "../context/GameContext";
 import { useEffect, useRef, useState } from "react";
+import { API_BASE } from "./viteconfig.js";
 
 export default function Anchorage() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export default function Anchorage() {
   // Fetch questions
   const fetchQuestions = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/kriyabe/api/round1/questions/${kriyaID}`);
+      const res = await fetch(`${API_BASE}/api/round1/questions/${kriyaID}`);
       const data = await res.json();
       if (data.success) setQuestions(data.questions);
     } catch (err) { console.log("Error fetching questions", err); }
@@ -53,7 +54,7 @@ export default function Anchorage() {
 
   const saveRewardToDB = async ({ seaId, earned, card }) => {
     try {
-      await fetch("http://localhost:3000/api/reward", {
+      await fetch("${API_BASE}/api/reward", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ kriyaID, seaId, pointsEarned: earned ?? 0, cardId: card?._id ?? null, shipId: selectedShip?.id ?? null })
