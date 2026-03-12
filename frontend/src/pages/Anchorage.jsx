@@ -87,7 +87,7 @@ export default function Anchorage() {
 
     // Show card
     if (card) {
-      setPendingCard({ id: card._id ?? card.name, name: card.name, description: card.description, difficulty: card.difficultyTag });
+      setPendingCard({ id: card._id ?? card.name, name: card.name, description: card.description});
       setShowCard(true);
     }
 
@@ -148,7 +148,6 @@ export default function Anchorage() {
         <div className="card-overlay" onClick={closeCardPopup}>
           <div className="algo-modal" onClick={e=>e.stopPropagation()}>
             <h2 className="algo-name">{pendingCard.name}</h2>
-            <div className="algo-tag">{pendingCard.difficulty}</div>
             <p className="algo-desc">{pendingCard.description}</p>
             <button className="close-card-btn" onClick={closeCardPopup}>Close</button>
           </div>
@@ -167,7 +166,6 @@ export default function Anchorage() {
             return <div key={key} className="card-chip">
               <span className="chip-icon">{c.icon || "📜"}</span>
               <span className="chip-name">{c.name}</span>
-              <span className="chip-tag">{c.difficulty || "?"}</span>
             </div>;
           })}
         </div>

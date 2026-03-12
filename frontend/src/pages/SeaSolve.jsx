@@ -75,8 +75,8 @@ export default function SeaSolve() {
   return (
     <div className="solve-container">
       <div className="solve-card">
-        <button className="back-btn" onClick={goBack}>← Back to Anchorage</button>
-        <h2>🌊 Sea {Number.isFinite(seaId)?seaId:"-"}</h2>
+        <button className="back-btn" onClick={goBack}>← Back to Seven Pirate Treasures</button>
+        <h2>Chest {Number.isFinite(seaId)?seaId:"-"}</h2>
         <p className="team-id-label">Team: {kriyaID}</p>
         {loading && <p>Loading...</p>}
         {!loading && question && (
@@ -86,7 +86,7 @@ export default function SeaSolve() {
             {question.imageUrl && <img src={question.imageUrl} alt={`Sea ${question.questionNo}`} className="question-image"/>}
             {Array.isArray(question.options) && question.options.length>0 &&
               <div className="options-list">{question.options.map((opt,i)=><div key={i} className="option-item">{opt}</div>)}</div>}
-            <input value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="Answer (A/B/C/D)" className="answer-input"/>
+            <input value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="ENTER OPTIONS (A/B/C/D) OR ANSWER " className="answer-input"/>
             <button onClick={submitAnswer} disabled={submitting} className="submit-btn">{submitting?"Submitting...":"Submit"}</button>
           </>
         )}

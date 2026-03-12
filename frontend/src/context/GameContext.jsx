@@ -4,13 +4,13 @@ import { createContext, useContext, useMemo, useRef, useState, useEffect } from 
 const GameContext = createContext(null);
 
 const seaNames = [
-  "Black Sea (Ammand the Corsair)",
-  "Caspian Sea (Hector Barbossa)",
-  "Mediterranean Sea (Chevalle)",
-  "Pacific Ocean (Mistress Ching)",
-  "Atlantic Ocean (Gentleman Jocard)",
-  "Caribbean Sea (Jack Sparrow)",
-  "Indian Ocean (Sri Sumbhajee Angria)",
+  "Black Pearl Chest",
+  "Corsair's Treasure Chest",
+  "Barbossa's Gold Chest",
+  "Dragon Hoard Chest",
+  "Skull & Bones Chest",
+  "Captain's Secret Chest",
+  "Ancient Pirate Chest",
 ];
 
 const slots = [

@@ -1,102 +1,143 @@
-import { useState } from 'react'
-import '../styles/Signup.css'
-import psglogo from '../assets/psg.jpg'
+import { useState } from "react";
+import "../styles/Signup.css";
+import Login from "./Login.jsx";
 
-function Signup({ onLogin }) {
-    const [name, setName] = useState('')
-    const [rollnum, setRollnum] = useState('')
-    const [email, setEmail] = useState('')
-    const [mobile, setMobile] = useState('')
-    const [college, setCollege] = useState('')
+function Signup() {
+  const [teamName, setTeamName] = useState("");
+  const [kriyaID, setKriyaID] = useState("");
+  const [captainName, setCaptainName] = useState("");
+  const [regMail, setRegMail] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
 
-    const handleSignup = (e) => {
-        e.preventDefault()
-        console.log({ name, rollnum, email, mobile, college })
-        // Process signup logic here
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    const signupData = {
+      teamName,
+      kriyaID,
+      captainName,
+      regMail,
+    };
+
+    try {
+      const res = await fetch(
+        "http://localhost:3000/kriyabe/api/auth/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(signupData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.msg || "Signup failed");
+        return;
+      }
+
+      alert("Signup successful! Please login.");
+
+      setTeamName("");
+      setKriyaID("");
+      setCaptainName("");
+      setRegMail("");
+
+      // show login component
+      setShowLogin(true);
+
+    } catch (error) {
+      console.error(error);
+      alert("Server error");
     }
+  };
 
-    return (
-        <div className="signup-container">
-            <div className="signup-glass-card">
-                <div className="signup-header">
-                    <h1>KRIYA<span>2026</span></h1>
-                    <p>Enlist in the Cyber Seas</p>
-                </div>
+  // If signup finished → render Login page
+  if (showLogin) {
+    return <Login />;
+  }
 
-                <form onSubmit={handleSignup}>
-                    <div className="signup-grid">
-                        <div className="form-group full-width">
-                            <label>Full Name</label>
-                            <input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter your full name"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Roll Number</label>
-                            <input
-                                type="text"
-                                value={rollnum}
-                                onChange={(e) => setRollnum(e.target.value)}
-                                placeholder="Roll No"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Mobile</label>
-                            <input
-                                type="tel"
-                                value={mobile}
-                                onChange={(e) => setMobile(e.target.value)}
-                                placeholder="Phone"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group full-width">
-                            <label>Email Address</label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@university.com"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group full-width">
-                            <label>College Name</label>
-                            <input
-                                type="text"
-                                value={college}
-                                onChange={(e) => setCollege(e.target.value)}
-                                placeholder="Your institution"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <button type="submit" className="signup-btn">Create Account</button>
-
-                    <div className="switch-link">
-                        Already part of the crew?
-                        <button type="button" className="link-button" onClick={onLogin}>
-                            Login Here
-                        </button>
-                    </div>
-                </form>
-
-                <div className="signup-footer">
-                    <p>KRIYA REGISTRATION PROTOCOL v2.6</p>
-                </div>
-            </div>
+  return (
+    <div className="signup-container">
+      <div className="signup-glass-card">
+        <div className="signup-header">
+          <h1>
+            KRIYA<span>2026</span>
+          </h1>
+          <p>Enlist in the Cyber Seas</p>
         </div>
-    )
+
+        <form onSubmit={handleSignup}>
+          <div className="signup-grid">
+            <div className="form-group full-width">
+              <label>Team Name</label>
+              <input
+                type="text"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                placeholder="Enter team name"
+                required
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Kriya ID</label>
+              <input
+                type="text"
+                value={kriyaID}
+                onChange={(e) => setKriyaID(e.target.value)}
+                placeholder="Enter Kriya ID"
+                required
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Captain Name</label>
+              <input
+                type="text"
+                value={captainName}
+                onChange={(e) => setCaptainName(e.target.value)}
+                placeholder="Enter captain name"
+                required
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>Registered Mail ID</label>
+              <input
+                type="email"
+                value={regMail}
+                onChange={(e) => setRegMail(e.target.value)}
+                placeholder="Enter registered email"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="signup-btn">
+            Create Account
+          </button>
+
+          <div className="switch-link">
+            Already part of the crew?
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => setShowLogin(true)}
+            >
+              Login Here
+            </button>
+          </div>
+        </form>
+
+        <div className="signup-footer">
+          <p>KRIYA REGISTRATION PROTOCOL v2.6</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default Signup
+export default Signup;
