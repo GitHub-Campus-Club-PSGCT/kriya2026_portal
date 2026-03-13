@@ -425,7 +425,6 @@ const CodeEditor = forwardRef(function CodeEditor(
     python: "python",
     c: "c",
     java: "java",
-    c: "c",
   };
 
   return (

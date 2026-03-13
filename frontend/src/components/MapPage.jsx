@@ -15,7 +15,10 @@ import "../styles/mapPage.css";
 
 const MapPage = () => {
     const navigate = useNavigate();
-    const [team, setTeam] = useState(null);
+    const [team, setTeam] = useState(() => {
+        const saved = localStorage.getItem("team");
+        return saved ? JSON.parse(saved) : null;
+    });
     const [allAlgoCards, setAllAlgoCards] = useState([]);
     const [selectedCards, setSelectedCards] = useState(() => {
         const saved = localStorage.getItem('kriya_selected_cards');
@@ -23,9 +26,7 @@ const MapPage = () => {
     });
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [isActionPopupOpen, setIsActionPopupOpen] = useState(false);
-    const [cardsChosen, setCardsChosen] = useState(() => {
-        return localStorage.getItem('kriya_cards_chosen') === 'true';
-    });
+    const [cardsChosen, setCardsChosen] = useState(false);
 
     // Treasure Hunt State
     const [isTreasureHunting, setIsTreasureHunting] = useState(false);
@@ -67,22 +68,34 @@ const MapPage = () => {
 
     const { cards: gameCards } = useGame();
 
-    // Filter available cards from GameContext
+    // Filter available cards from intersection of earned (gameCards) and assigned (selectedScrolls)
     const availableCards = React.useMemo(() => {
-        if (!gameCards || gameCards.length === 0 || allAlgoCards.length === 0) return [];
+        if (!gameCards || gameCards.length === 0 || !team || !allAlgoCards.length) return [];
         
-        return gameCards.map(c => {
-            const normalizedName = (c.name || '').toLowerCase().replace(/\s+/g, '');
-            const cardInfo = allAlgoCards.find(ac => ac.name.toLowerCase().replace(/\s+/g, '') === normalizedName);
-            
-            return {
-                id: cardInfo?._id || c.id,
-                name: c.name,
-                color: "#c9a84c", // Standard gold for algorithm cards
-                realId: cardInfo?._id
-            };
-        });
-    }, [gameCards, allAlgoCards]);
+        const assignedNames = team.round1?.selectedScrolls?.map(s => s.name.toLowerCase().replace(/\s+/g, '')) || [];
+        
+        return gameCards
+            .filter(c => {
+                const normalizedName = (c.name || '').toLowerCase().replace(/\s+/g, '');
+                return assignedNames.includes(normalizedName);
+            })
+            .map(c => {
+                const normalizedName = (c.name || '').toLowerCase().replace(/\s+/g, '');
+                const cardInfo = allAlgoCards.find(ac => ac.name.toLowerCase().replace(/\s+/g, '') === normalizedName);
+                
+                return {
+                    id: cardInfo?._id || c.id,
+                    name: c.name,
+                    color: "#c9a84c",
+                    realId: cardInfo?._id
+                };
+            });
+    }, [gameCards, team, allAlgoCards]);
+
+    // Filter selectedCards to only include available ones
+    React.useEffect(() => {
+        setSelectedCards(prev => prev.filter(card => availableCards.some(ac => ac.name === card)));
+    }, [availableCards]);
 
 
     // Island Graph Data - Easy to adjust size and position
@@ -111,6 +124,13 @@ const MapPage = () => {
         if (cardsChosen && selectedCards.length === 3) {
             fetchR2Questions(selectedCards);
         }
+
+        // Refetch team data every 10 seconds to reflect admin changes
+        const interval = setInterval(() => {
+            fetchTeamData();
+        }, 10000);
+
+        return () => clearInterval(interval);
     }, []);
 
     async function fetchPlayerActionCards(kriyaID) {
@@ -134,12 +154,13 @@ const MapPage = () => {
         const teamId = storedTeam.id || storedTeam._id || storedTeam.kriyaID || storedTeam.kriyaId || storedTeam.kriyaid;
 
         try {
-            const res = await fetch(`${API_BASE}/teams/profile/${teamId}`, {
+            const res = await fetch(`${API_BASE}/api/teams/profile/${teamId}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
             if (res.ok) {
                 setTeam(data);
+                setSelectedCards(data.round1?.selectedScrolls?.map(s => s.name) || []);
                 return data;
             }
         } catch (err) {
