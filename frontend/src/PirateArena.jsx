@@ -129,7 +129,13 @@ const PROBLEMS = [
 /* ================================================================
    2. JUDGE0 UTILITY (simulated — swap in real API key later)
    ================================================================ */
-const JUDGE0_LANGUAGE_IDS = { python: 71, javascript: 63, cpp: 54, java: 62 };
+const JUDGE0_LANGUAGE_IDS = {
+  python: 71,
+  javascript: 63,
+  cpp: 54,
+  java: 62,
+  c: 50,
+};
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -259,7 +265,7 @@ function Header({ lives, bounty, spinning, maxLives, shatterIdx }) {
       </div>
 
       {/* Title */}
-      <h1 className="pa-header-title">⚓ &nbsp;Code Arena</h1>
+      <h1 className="pa-header-title">⚓ &nbsp;Code Harbour</h1>
 
       {/* Bounty */}
       <div className="pa-bounty" aria-label={`Bounty: ${bounty} points`}>
@@ -426,6 +432,7 @@ const CodeEditor = forwardRef(function CodeEditor(
     javascript: "javascript",
     cpp: "cpp",
     java: "java",
+    c: "c",
   };
 
   return (
@@ -834,6 +841,7 @@ export default function PirateArena({ problemId = 1, onBack }) {
               <option value="python">🧭 Python 3</option>
               <option value="javascript">💀 JavaScript</option>
               <option value="cpp">⚓ C++</option>
+              <option value="c">🌊 C</option>
               <option value="java">🏴‍☠️ Java</option>
             </select>
           </div>

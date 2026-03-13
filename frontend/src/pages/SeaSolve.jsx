@@ -74,7 +74,7 @@ export default function SeaSolve() {
   return (
     <div className="solve-container">
       <div className="solve-card">
-        <button className="back-btn" onClick={goBack}>← Back to Seven Pirate Treasures</button>
+        <button className="back-btn" onClick={goBack}>← Back </button>
         <h2>Chest {Number.isFinite(seaId) ? seaId : "-"}</h2>
         <p className="team-id-label">Team: {kriyaID}</p>
         {loading && <p>Loading...</p>}
