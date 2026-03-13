@@ -1,0 +1,15 @@
+[1mdiff --cc frontend/src/PirateArena.jsx[m
+[1mindex a82c4a0,8b61753..0000000[m
+[1m--- a/frontend/src/PirateArena.jsx[m
+[1m+++ b/frontend/src/PirateArena.jsx[m
+[36m@@@ -6,8 -6,7 +6,9 @@@[m [mimport [m
+    useImperativeHandle,[m
+    forwardRef,[m
+  } from "react";[m
+[31m -// import MonacoEditor from "@monaco-editor/react";[m
+[32m +import { useLocation } from "react-router-dom";[m
+[32m +import MonacoEditor from "@monaco-editor/react";[m
+[32m++[m
+  import "./PirateArena.css";[m
+  [m
+  /* ================================================================[m

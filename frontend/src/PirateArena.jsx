@@ -9,6 +9,7 @@ import {
 import { useLocation } from "react-router-dom";
 import MonacoEditor from "@monaco-editor/react";
 
+import { submitToJudge } from "./utils/judge0";
 import "./PirateArena.css";
 
 /* ================================================================
@@ -129,66 +130,57 @@ const PROBLEMS = [
 ];
 
 /* ================================================================
-   2. JUDGE0 UTILITY (simulated — swap in real API key later)
+   2. JUDGE0 UTILITY — Real Judge0 integration
    ================================================================ */
-const JUDGE0_LANGUAGE_IDS = {
-  python: 71,
-  javascript: 63,
-  cpp: 54,
-  java: 62,
-  c: 50,
-};
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+const JUDGE0_URL = "https://appghcc.psgtech.ac.in";
+const JUDGE0_LANGUAGE_IDS = { python: 71, c: 75, java: 62 };
 
-function simulateResult(code, testCases) {
-  if (!code || code.trim().length < 10) {
-    return {
-      status: "error",
-      results: [],
-      message: "☠️ Ye submitted naught but the empty abyss, Captain!",
-    };
-  }
-  const hasLogic = /return|def |function |class |for |while |if /i.test(code);
-  const passRate = hasLogic ? 0.78 : 0.25;
-  const results = testCases.map((tc, idx) => {
-    const passed = Math.random() < passRate;
-    return {
-      id: idx + 1,
-      status: passed ? "pass" : "fail",
-      input: JSON.stringify(tc.input),
-      expected: JSON.stringify(tc.expected),
-      actual: passed ? JSON.stringify(tc.expected) : JSON.stringify(null),
-      time: `${(Math.random() * 80 + 20).toFixed(0)}ms`,
-    };
-  });
-  const passed = results.filter((r) => r.status === "pass").length;
-  const allPassed = passed === results.length;
-  return {
-    status: allPassed ? "accepted" : "wrong_answer",
-    results,
-    message: allPassed
-      ? `⚓ All ${passed}/${results.length} test cases passed! Hoist the colours!`
-      : `💀 ${passed}/${results.length} passed. The ship be takin' on water!`,
-  };
-}
 
-async function submitToJudge(code, language, problem) {
-  // ── To activate Judge0: set USE_REAL_JUDGE0 = true + add VITE_JUDGE0_API_KEY to .env ──
-  // const USE_REAL_JUDGE0 = false;
-  await delay(Math.random() * 1200 + 800);
-  return simulateResult(code, problem.testCases);
-}
-
-async function runCode(code) {
-  await delay(400 + Math.random() * 400);
+/**
+ * Run code against a single sample input via Judge0 directly.
+ * Used by the "Run" button for quick feedback.
+ */
+async function runCode(code, language, problem) {
   if (!code || code.trim().length < 5)
     return { status: "error", output: "Error: No code to run, ye landlubber!" };
-  return {
-    status: "success",
-    output:
-      "Code compiled successfully.\nRunning sample test...\n✓ Sample output matches expected.",
-  };
+
+  const langId = JUDGE0_LANGUAGE_IDS[language];
+  if (!langId) return { status: "error", output: `Unsupported language: ${language}` };
+
+  // Use first test case input as the sample stdin
+  const sampleInput = problem.testCases?.[0]?.input ?? problem.examples?.[0]?.input ?? "";
+
+  try {
+    const res = await fetch(
+      `${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          language_id: langId,
+          source_code: code,
+          stdin: sampleInput,
+        }),
+      }
+    );
+    if (!res.ok) throw new Error(`Judge0 responded with ${res.status}`);
+    const result = await res.json();
+
+    if (result.status?.id === 6) {
+      return {
+        status: "error",
+        output: `Compilation Error:\n${result.compile_output || result.stderr || "(no details)"}`,
+      };
+    }
+    const stdout = (result.stdout || "").trim() || "(no output)";
+    return {
+      status: "success",
+      output: `Output:\n${stdout}\nStatus: ${result.status?.description}  ·  Time: ${result.time ?? "?"}s`,
+    };
+  } catch (e) {
+    return { status: "error", output: `Judge0 error: ${e.message}` };
+  }
 }
 
 /* ================================================================
@@ -431,8 +423,7 @@ const CodeEditor = forwardRef(function CodeEditor(
 
   const LANG_MAP = {
     python: "python",
-    javascript: "javascript",
-    cpp: "cpp",
+    c: "c",
     java: "java",
     c: "c",
   };
@@ -491,7 +482,7 @@ function LowerDeck({ logs, loading, collapsed, onToggle }) {
 
   const icon = (t) =>
     ({ pass: "✓", fail: "✗", error: "☠", system: "⚓", info: "◈", warn: "⚠" })[
-      t
+    t
     ] ?? "›";
   const prefix = (t) =>
     ({
@@ -619,24 +610,24 @@ export default function PirateArena({ problemId = 1, onBack }) {
 
   // Adapt DB problem to Arena format
   const mappedProblem = stateProblem ? {
-      id: stateProblem._id,
-      slug: stateProblem.title.toLowerCase().replace(/\s+/g, '-'),
-      title: stateProblem.title,
-      lore: "A challenge from the deep...",
-      description: stateProblem.description,
-      examples: (stateProblem.testCases || [])
-          .filter(tc => !tc.isHidden)
-          .map(tc => ({
-              input: tc.input || "",
-              output: tc.output || "",
-              explanation: null
-          })),
-      constraints: [`Time Limit: ${stateProblem.timeLimitSec}s`],
-      testCases: (stateProblem.testCases || []).map(tc => ({
-          input: tc.input,
-          expected: tc.output
+    id: stateProblem._id,
+    slug: stateProblem.title.toLowerCase().replace(/\s+/g, '-'),
+    title: stateProblem.title,
+    lore: "A challenge from the deep...",
+    description: stateProblem.description,
+    examples: (stateProblem.testCases || [])
+      .filter(tc => !tc.isHidden)
+      .map(tc => ({
+        input: tc.input || "",
+        output: tc.output || "",
+        explanation: null
       })),
-      bountyReward: 150
+    constraints: [`Time Limit: ${stateProblem.timeLimitSec}s`],
+    testCases: (stateProblem.testCases || []).map(tc => ({
+      input: tc.input,
+      expected: tc.output
+    })),
+    bountyReward: 150
   } : null;
 
   const initialProblem =
@@ -705,7 +696,7 @@ export default function PirateArena({ problemId = 1, onBack }) {
     }
   }, [loading, gameOver, code, language, problem, clearLogs, addLog]);
 
-  /* Submit */
+  /* Submit — calls backend which runs Judge0 and saves to DB */
   const handleSubmit = useCallback(async () => {
     if (loading || gameOver) return;
     setLoading(true);
@@ -715,30 +706,86 @@ export default function PirateArena({ problemId = 1, onBack }) {
       `🏴‍☠️ Submitting yer ${language.toUpperCase()} code to Davy Jones…`,
     );
 
-    let result;
+    // Resolve team info from localStorage (set on login)
+    let storedTeam = {};
+    const rawTeam = localStorage.getItem("team");
+    if (rawTeam) {
+      try {
+        storedTeam = JSON.parse(rawTeam);
+      } catch {
+        // Some flows might store just a plain string ID.
+        storedTeam = { teamId: rawTeam, id: rawTeam };
+      }
+    }
+
+    const teamId =
+      storedTeam?.teamId ||
+      storedTeam?.teamID ||
+      storedTeam?.id ||
+      storedTeam?._id ||
+      storedTeam?.kriyaID ||
+      storedTeam?.kriyaId ||
+      storedTeam?.kriyaid;
+    const kriyaID =
+      storedTeam?.kriyaID ||
+      storedTeam?.kriyaId ||
+      storedTeam?.kriyaid ||
+      storedTeam?.id ||
+      storedTeam?._id;
+    const token = localStorage.getItem("token");
+
+    const problemId = problem?.id || problem?._id;
+
+    if (!teamId || !problemId) {
+      addLog(
+        "error",
+        "⚠️ Could not resolve teamId or problemId. Are ye logged in?",
+      );
+      addLog(
+        "error",
+        `Stored team: ${JSON.stringify(storedTeam)} (token present: ${Boolean(token)})`,
+      );
+      setLoading(false);
+      return;
+    }
+
+    let submission;
     try {
-      result = await submitToJudge(code, language, problem);
+      submission = await submitToJudge(code, language, problem, {
+        teamId,
+        kriyaID,
+        token,
+      });
     } catch (e) {
       addLog("error", `⚠️ Fatal error: ${e.message}`);
       setLoading(false);
       return;
     }
 
-    result.results?.forEach((tc) =>
-      addLog(
-        tc.status === "pass" ? "pass" : "fail",
-        `Test ${tc.id}: ${tc.status === "pass" ? "✓ PASS" : "✗ FAIL"} · Input: ${tc.input} · Expected: ${tc.expected} · Got: ${tc.actual} · ${tc.time}`,
-      ),
-    );
+    const {
+      verdict,
+      passedTestCases,
+      totalTestCases,
+      livesLeft,
+      sunk,
+      compilationError,
+      score,
+      message,
+    } = submission;
 
-    if (result.status === "accepted") {
-      addLog("pass", `⚓ ACCEPTED — ${result.message}`);
+    if (message) addLog("info", message);
+
+    if (verdict === "ACCEPTED") {
+      addLog(
+        "pass",
+        `⚓ ACCEPTED — All ${totalTestCases}/${totalTestCases} test cases passed! Hoist the colours!`,
+      );
       addLog(
         "info",
-        `💰 +${problem.bountyReward} doubloons added to yer bounty!`,
+        `💰 +${score ?? problem.bountyReward} doubloons added to yer bounty!`,
       );
       if (!solved.has(problem.id)) {
-        setBounty((b) => b + problem.bountyReward);
+        setBounty((b) => b + (score ?? problem.bountyReward));
         setSolved((prev) => new Set([...prev, problem.id]));
         setSpinning(true);
         setTimeout(() => setSpinning(false), 700);
@@ -746,13 +793,28 @@ export default function PirateArena({ problemId = 1, onBack }) {
         addLog("info", "Already solved — no extra doubloons this run.");
       }
     } else {
-      const next = lives - 1;
-      // Trigger shatter on skull that is about to go dark
-      setShatterIdx(next);
+      // WRONG_ANSWER or COMPILATION_ERROR — deduct a life
+      if (verdict === "COMPILATION_ERROR") {
+        addLog("error", `🔥 COMPILATION ERROR — Fix yer syntax, Captain!`);
+        compilationError
+          ?.split("\n")
+          .slice(0, 8)
+          .forEach((l) => addLog("error", l));
+      } else {
+        addLog(
+          "fail",
+          `💀 WRONG ANSWER — ${passedTestCases}/${totalTestCases} test cases passed. The ship be takin' on water!`,
+        );
+      }
+
+      // Sync lives with backend if provided, else decrement locally
+      const nextLives = livesLeft ?? Math.max(0, lives - 1);
+      setShatterIdx(nextLives); // shatter the skull at the new boundary
       setTimeout(() => setShatterIdx(-1), 750);
 
-      if (next <= 0) {
-        addLog("error", `☠️ SHIPWRECKED! — ${result.message}`);
+      if (sunk || nextLives <= 0) {
+        addLog("error", "☠️ SHIPWRECKED! The Kraken claims yer vessel!");
+        if (sunk) addLog("info", "Lives reset — ye may retry once the waters calm.");
         setShipwrecked(true);
         setTimeout(() => {
           setCode("");
@@ -761,10 +823,10 @@ export default function PirateArena({ problemId = 1, onBack }) {
           setGameOver(true);
         }, 1500);
       } else {
-        setLives(next);
+        setLives(nextLives);
         addLog(
-          "fail",
-          `💀 WRONG ANSWER — ${result.message}  ·  ⚠️ ${next} ${next === 1 ? "life" : "lives"} remaining!`,
+          "warn",
+          `⚠️ ${nextLives} ${nextLives === 1 ? "life" : "lives"} remaining!`,
         );
       }
     }
@@ -780,7 +842,6 @@ export default function PirateArena({ problemId = 1, onBack }) {
     clearLogs,
     addLog,
   ]);
-
   /* Restart */
   const handleRestart = useCallback(() => {
     setLives(MAX_LIVES);
@@ -867,8 +928,6 @@ export default function PirateArena({ problemId = 1, onBack }) {
               aria-label="Select programming language"
             >
               <option value="python">🧭 Python 3</option>
-              <option value="javascript">💀 JavaScript</option>
-              <option value="cpp">⚓ C++</option>
               <option value="c">🌊 C</option>
               <option value="java">🏴‍☠️ Java</option>
             </select>

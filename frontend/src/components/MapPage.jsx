@@ -129,9 +129,9 @@ const MapPage = () => {
     async function fetchTeamData() {
         const storedTeam = JSON.parse(localStorage.getItem("team"));
         const token = localStorage.getItem("token");
-        if (!storedTeam || (!storedTeam.id && !storedTeam._id)) return null;
+        if (!storedTeam || (!storedTeam.id && !storedTeam._id && !storedTeam.kriyaID && !storedTeam.kriyaId && !storedTeam.kriyaid)) return null;
 
-        const teamId = storedTeam.id || storedTeam._id;
+        const teamId = storedTeam.id || storedTeam._id || storedTeam.kriyaID || storedTeam.kriyaId || storedTeam.kriyaid;
 
         try {
             const res = await fetch(`${API_BASE}/teams/profile/${teamId}`, {
