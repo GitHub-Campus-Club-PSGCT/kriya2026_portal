@@ -65,6 +65,13 @@ const MapPage = () => {
             flag: "FLAG{C1ph3r_M4st3r_B1ackb3ard}",
             rewardId: 107,
             rewardName: "Blackbeard's Favor"
+        },
+        d4: {
+            title: "The Navigator's Sunstone",
+            url: "/puzzles/sunstone_puzzle.html",
+            flag: "FLAG{B3am_B3nd3r_L3g3nd}",
+            rewardId: 108,
+            rewardName: "Navigator's Star"
         }
     };
 
