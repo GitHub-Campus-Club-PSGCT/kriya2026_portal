@@ -1,84 +1,371 @@
+/* ================================================================
+   SeaSolve.css — "The Challenge" — Clean & Professional
+   ================================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap");
+
+/* ── Variables ── */
+:root {
+  --s-bg:         #070a0f;
+  --s-surface:    #0d1119;
+  --s-surface2:   #111827;
+  --s-border:     rgba(200, 160, 80, 0.2);
+  --s-border-h:   rgba(200, 160, 80, 0.5);
+  --s-gold:       #c8a050;
+  --s-gold-light: #f0c060;
+  --s-text:       #e8dcc8;
+  --s-text-muted: #8a7a64;
+  --s-text-dim:   #5a4e3e;
+  --s-error:      #e04040;
+  --s-error-bg:   rgba(224, 64, 64, 0.08);
+  --s-error-bdr:  rgba(224, 64, 64, 0.25);
+  --s-radius:     10px;
+  --s-font-title: "Cinzel", serif;
+  --s-font-body:  "Inter", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+/* ================================================================
+   PAGE WRAPPER
+   ================================================================ */
 .solve-container {
-  height: 100vh;
+  min-height: 100vh;
   width: 100vw;
-  background: url("/SeaSolveBG.png") center/cover no-repeat; 
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
+  padding: 40px 20px;
+  background-color: var(--s-bg);
+  background-image:
+    linear-gradient(to bottom, rgba(7,10,15,0.15) 0%, rgba(7,10,15,0.35) 100%),
+    url("/SeaSolveBG.png");
+  background-size: cover;
+  background-position: center;
+  font-family: var(--s-font-body);
+  color: var(--s-text);
 }
 
+/* ================================================================
+   CARD CONTAINER
+   ================================================================ */
 .solve-card {
-  width: min(850px, 95vw);
-  background: rgba(63, 37, 12, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 18px;
-  padding: 24px;
-  color: white;
-  backdrop-filter: blur(8px);
+  width: 100%;
+  max-width: 780px;
+  background: var(--s-surface);
+  border: 1px solid rgba(200, 160, 80, 0.28);
+  border-radius: 16px;
+  overflow: hidden;
+  /* Ambient outer glow — premium depth */
+  box-shadow:
+    0 0 0 1px rgba(200, 160, 80, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 32px 80px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(200, 160, 80, 0.06);
+  animation: card-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  position: relative;
 }
 
-.solve-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
+/* Subtle film-grain texture overlay */
+.solve-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: 16px;
+  z-index: 10;
 }
 
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* ── Card top accent line — animated shimmer ── */
+.solve-card::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--s-gold) 40%, var(--s-gold-light) 60%, transparent);
+  position: relative;
+  z-index: 11;
+}
+
+/* ── Inner padding wrapper — keeps ::before on the edge ── */
+.solve-card > *:not(.solve-card::before) {
+  padding: 0 40px;
+}
+
+/* Give all direct children horizontal padding except the top bar */
+.back-btn          { margin: 32px 40px 0; }
+.solve-card h2     { padding: 0 40px; }
+.team-id-label     { padding: 0 40px; }
+.solve-card h3     { padding: 0 40px; }
+.solve-card p      { margin: 0 40px 24px; }
+.options-list      { margin: 0 40px 28px; }
+.answer-input      { margin: 0 40px; width: calc(100% - 80px); }
+.submit-btn        { margin: 20px 40px 40px; width: calc(100% - 80px); }
+.msg               { margin: 12px 40px 32px; }
+.question-image    { margin: 0 40px 24px; width: calc(100% - 80px); }
+
+/* ================================================================
+   BACK BUTTON
+   ================================================================ */
 .back-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 10px 14px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--s-border);
+  border-radius: 8px;
+  color: var(--s-text-muted);
+  font-family: var(--s-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 16px;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.q-title {
-  margin-top: 10px;
-  margin-bottom: 6px;
-  color: #ffd86b;
+.back-btn:hover {
+  border-color: var(--s-border-h);
+  color: var(--s-gold);
+  transform: translateX(-2px);
 }
 
-.q-prompt {
-  opacity: 0.95;
-  line-height: 1.4;
+/* ================================================================
+   HEADING GROUP
+   ================================================================ */
+.solve-card h2 {
+  font-family: var(--s-font-title);
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--s-gold-light);
+  margin: 24px 0 4px;
 }
 
+.team-id-label {
+  font-family: var(--s-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--s-text-dim);
+  margin: 0 0 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(200, 160, 80, 0.1);
+  margin-bottom: 28px;
+}
+
+/* ================================================================
+   QUESTION SECTION
+   ================================================================ */
+.solve-card h3 {
+  font-family: var(--s-font-title);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--s-gold);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Gold left-bar accent on section headings */
+.solve-card h3::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--s-gold-light), var(--s-gold));
+  box-shadow: 0 0 8px rgba(200, 160, 80, 0.5);
+  flex-shrink: 0;
+}
+
+.solve-card p {
+  font-family: var(--s-font-body);
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--s-text);
+  background: var(--s-surface2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 3px solid rgba(200, 160, 80, 0.35);
+  border-radius: var(--s-radius);
+  padding: 20px 24px;
+}
+
+.question-image {
+  border-radius: var(--s-radius);
+  border: 1px solid var(--s-border);
+  max-height: 260px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ================================================================
+   OPTIONS LIST
+   ================================================================ */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-item {
+  background: var(--s-surface2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--s-radius);
+  padding: 13px 18px;
+  font-family: var(--s-font-body);
+  font-size: 15px;
+  color: var(--s-text);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  cursor: default;
+  counter-increment: option-counter;
+}
+
+/* Auto letter badges A, B, C, D… */
+.option-item::before {
+  content: counter(option-counter, upper-alpha);
+  min-width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: rgba(200, 160, 80, 0.1);
+  border: 1px solid rgba(200, 160, 80, 0.25);
+  border-radius: 6px;
+  font-family: var(--s-font-title);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--s-gold);
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+
+.options-list { counter-reset: option-counter; }
+
+.option-item:hover {
+  border-color: rgba(200, 160, 80, 0.3);
+  background: rgba(200, 160, 80, 0.04);
+}
+
+/* ================================================================
+   ANSWER INPUT
+   ================================================================ */
 .answer-input {
-  width: 100%;
-  padding: 12px 14px;
-  margin-top: 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.35);
-  color: white;
+  display: block;
+  background: var(--s-surface2);
+  border: 1px solid var(--s-border);
+  border-radius: var(--s-radius);
+  padding: 15px 18px;
+  font-family: var(--s-font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--s-text);
   outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
+.answer-input::placeholder {
+  color: var(--s-text-dim);
+  letter-spacing: 0.04em;
+}
+
+.answer-input:focus {
+  border-color: var(--s-gold);
+  box-shadow: 0 0 0 3px rgba(200, 160, 80, 0.12);
+}
+
+/* ================================================================
+   SUBMIT BUTTON — with shimmer sweep
+   ================================================================ */
 .submit-btn {
-  margin-top: 14px;
-  width: 100%;
-  padding: 12px 14px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--s-gold) 0%, #e8b84a 50%, var(--s-gold) 100%);
+  background-size: 200% 100%;
+  color: #080a0e;
   border: none;
-  border-radius: 12px;
-  background: gold;
-  color: black;
-  font-weight: 800;
+  border-radius: var(--s-radius);
+  padding: 17px;
+  font-family: var(--s-font-title);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition: background-position 0.4s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px rgba(200, 160, 80, 0.25), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+/* Travelling shimmer */
+.submit-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-20deg);
+  animation: btn-shimmer 3s infinite 1.5s;
+}
+
+@keyframes btn-shimmer {
+  0%   { left: -75%; }
+  100% { left: 140%; }
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(200, 160, 80, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(200, 160, 80, 0.2);
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  background: #1a2030;
+  color: #3a3a4a;
   cursor: not-allowed;
+  box-shadow: none;
 }
+.submit-btn:disabled::before { display: none; }
 
-.muted {
-  opacity: 0.8;
-}
-
+/* ================================================================
+   MESSAGE
+   ================================================================ */
 .msg {
-  margin: 10px 0;
-  color: #ff6b6b;
+  font-family: var(--s-font-body);
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--s-error);
+  background: var(--s-error-bg);
+  border: 1px solid var(--s-error-bdr);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+/* ================================================================
+   LOADING STATE
+   ================================================================ */
+.solve-card > p:first-of-type {
+  color: var(--s-text-muted);
+  font-style: italic;
+  font-size: 14px;
 }

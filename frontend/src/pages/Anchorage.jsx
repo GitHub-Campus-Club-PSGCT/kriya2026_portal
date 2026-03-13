@@ -26,7 +26,19 @@ export default function Anchorage() {
 
   const [questions, setQuestions] = useState([]);
   const ROUND_SECONDS = 30 * 60;
-  const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
+  const TIMER_KEY = "pirate_round1_start_ts";
+
+  // --- Persistent timer: store start timestamp in localStorage ---
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const stored = localStorage.getItem(TIMER_KEY);
+    if (stored) {
+      const elapsed = Math.floor((Date.now() - Number(stored)) / 1000);
+      return Math.max(ROUND_SECONDS - elapsed, 0);
+    }
+    // First visit — record start time
+    localStorage.setItem(TIMER_KEY, String(Date.now()));
+    return ROUND_SECONDS;
+  });
 
   // Fetch questions
   const fetchQuestions = async () => {
@@ -47,8 +59,14 @@ export default function Anchorage() {
 
   const formatTime = (sec) => { const m = Math.floor(sec / 60); const s = sec % 60; return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`; };
 
+  // Tick down every second; re-sync against the stored timestamp to avoid drift
   useEffect(() => {
-    const id = setInterval(() => setTimeLeft(prev => prev > 0 ? prev - 1 : 0), 1000);
+    const id = setInterval(() => {
+      const stored = localStorage.getItem(TIMER_KEY);
+      if (!stored) return;
+      const elapsed = Math.floor((Date.now() - Number(stored)) / 1000);
+      setTimeLeft(Math.max(ROUND_SECONDS - elapsed, 0));
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -121,7 +139,7 @@ export default function Anchorage() {
     <div className="map-container">
       <div className="ship-header">
         <div className="title-wrap">
-          <h2 className="ship-title">⚓ {shipName}</h2>
+          <h2 className="ship-title"> {shipName}</h2>
           {selectedShip && (
             <div className="ship-overlay-badge">
               <img src={selectedShip.img} alt={selectedShip.name} />

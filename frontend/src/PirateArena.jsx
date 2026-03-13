@@ -132,8 +132,10 @@ const PROBLEMS = [
 /* ================================================================
    2. JUDGE0 UTILITY — Real Judge0 integration
    ================================================================ */
+
 const JUDGE0_URL = "https://appghcc.psgtech.ac.in";
 const JUDGE0_LANGUAGE_IDS = { python: 71, c: 75, java: 62 };
+
 
 /**
  * Run code against a single sample input via Judge0 directly.
@@ -257,7 +259,7 @@ function Header({ lives, bounty, spinning, maxLives, shatterIdx }) {
       </div>
 
       {/* Title */}
-      <h1 className="pa-header-title">⚓ &nbsp;Code Arena</h1>
+      <h1 className="pa-header-title">⚓ &nbsp;Code Harbour</h1>
 
       {/* Bounty */}
       <div className="pa-bounty" aria-label={`Bounty: ${bounty} points`}>
@@ -423,6 +425,7 @@ const CodeEditor = forwardRef(function CodeEditor(
     python: "python",
     c: "c",
     java: "java",
+    c: "c",
   };
 
   return (
@@ -925,7 +928,7 @@ export default function PirateArena({ problemId = 1, onBack }) {
               aria-label="Select programming language"
             >
               <option value="python">🧭 Python 3</option>
-              <option value="c">⚓ C</option>
+              <option value="c">🌊 C</option>
               <option value="java">🏴‍☠️ Java</option>
             </select>
           </div>
