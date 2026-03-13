@@ -6,7 +6,7 @@ import {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import MonacoEditor from "@monaco-editor/react";
+// import MonacoEditor from "@monaco-editor/react";
 import "./PirateArena.css";
 
 /* ================================================================
