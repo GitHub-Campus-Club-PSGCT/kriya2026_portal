@@ -68,29 +68,27 @@ const MapPage = () => {
 
     const { cards: gameCards } = useGame();
 
-    // Filter available cards from intersection of earned (gameCards) and assigned (selectedScrolls)
+    // Filter available cards from intersection of earned (from DB) and assigned (selectedScrolls)
     const availableCards = React.useMemo(() => {
-        if (!gameCards || gameCards.length === 0) return [];
+        if (!team || !allAlgoCards.length) return [];
         
+        const earnedNames = team.round1?.earnedAlgoCards || [];
         const assignedNames = team.round1?.selectedScrolls?.map(s => s.name.toLowerCase().replace(/\s+/g, '')) || [];
         
-        return gameCards
-            .filter(c => {
-                const normalizedName = (c.name || '').toLowerCase().replace(/\s+/g, '');
-                return assignedNames.includes(normalizedName);
-            })
-            .map(c => {
-                const normalizedName = (c.name || '').toLowerCase().replace(/\s+/g, '');
+        return earnedNames
+            .filter(name => assignedNames.includes(name.toLowerCase().replace(/\s+/g, '')))
+            .map(name => {
+                const normalizedName = name.toLowerCase().replace(/\s+/g, '');
                 const cardInfo = allAlgoCards.find(ac => ac.name.toLowerCase().replace(/\s+/g, '') === normalizedName);
                 
                 return {
-                    id: cardInfo?._id || c.id,
-                    name: c.name,
+                    id: cardInfo?._id || name,
+                    name: name,
                     color: "#c9a84c",
                     realId: cardInfo?._id
                 };
             });
-    }, [gameCards, team, allAlgoCards]);
+    }, [team, allAlgoCards]);
 
     // Filter selectedCards to only include available ones
     React.useEffect(() => {

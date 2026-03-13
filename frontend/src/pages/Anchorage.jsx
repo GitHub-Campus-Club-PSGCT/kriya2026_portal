@@ -54,7 +54,7 @@ export default function Anchorage() {
 
   const handleSolve = (chest) => {
     if (!chest || chest.opened) return;
-    const question = questions.find(q => q.seaId === chest.id);
+    const question = questions.find(q => Number(q.questionNo) === chest.id);
     navigate(`/codequest/team/${kriyaID}/sea/${chest.id}`, { state: { ship: selectedShip, kriyaID, question } });
   };
 
@@ -75,6 +75,16 @@ export default function Anchorage() {
   const closeCardPopup = () => {
     if (pendingCard) {
       addCard(pendingCard);
+      // Save to backend
+      const token = localStorage.getItem("token");
+      fetch(`${API_BASE}/api/teams/add-earned-algo-card`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ cardName: pendingCard.name })
+      }).catch(err => console.error("Failed to save earned card", err));
       setPendingCard(null);
       // If there's an action card waiting, keep showCard true but pendingCard is now null
       if (!pendingActionCard) {

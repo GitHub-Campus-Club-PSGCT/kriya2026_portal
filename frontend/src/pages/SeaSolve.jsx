@@ -27,9 +27,12 @@ export default function SeaSolve() {
       try {
         if (!kriyaID) throw new Error("kriyaID required");
         if (!Number.isFinite(seaId)) throw new Error("Sea ID missing");
-        const url = `${API_BASE}/api/round1/questions/${seaId}?kriyaID=${kriyaID}`;
+        const url = `${API_BASE}/api/round1/questions/sea/${seaId}?kriyaID=${kriyaID}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.msg || `HTTP ${res.status}`);
+        }
         const data = await res.json();
         if (!cancelled) setQuestion(data);
       } catch (err) { if (!cancelled) setMsg(err.message || "Could not load question."); }
